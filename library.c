@@ -17,24 +17,6 @@ char getkey();
 void sleep_ms();
 void * new_offscreen_buffer();
 
-//for mmap in init
-int file;
-<<<<<<< HEAD
-int *process_address;
-
-int screen_height;
-int screen_width;
-=======
-char *process_address;
->>>>>>> master
-int len;
-
-//for ioctl
-struct fb_var_screeninfo variable_info;
-struct fb_fix_screeninfo fixed_info;
-int yres;
-int line_length;
-
 #define CLEAR_CODE "\033[2J" 
 //1111 1000 0000 0000
 //F    8    0    0
@@ -48,6 +30,19 @@ int line_length;
 typedef unsigned short color_t;
 
 
+//for mmap in init
+int file;
+
+int screen_height;
+int screen_width;
+color_t *process_address;
+int len;
+
+//for ioctl
+struct fb_var_screeninfo variable_info;
+struct fb_fix_screeninfo fixed_info;
+int yres;
+int line_length;
 
 void init_graphics(){
     file = open("/dev/fb0", O_RDWR);
@@ -141,24 +136,24 @@ void * new_offscreen_buffer(){
     return buf;
 }
 
-    void draw_pixel(int x, int y, color_t color){
-        if(x < 0 || y < 0){
-            //woops
-        }
-        x = x%screen_width;
-        y = y%screen_height;
-
-        *(process_address + (y * screen_width + x)) = color;
-
+void draw_pixel(int x, int y, color_t color){
+    if(x < 0 || y < 0){
+        //woops
     }
+    x = x%screen_width;
+    y = y%screen_height;
+
+    *(process_address + (y * screen_width + x)) = color;
+
+}
 
 //Need to cast everything
 void blit(void * buf){
-    char *screen_address;
+    color_t *screen_address;
     int i = 0;
     for(i = 0; i<len; i++){
-        screen_address = (char *)process_address + i;
-        *screen_address = *((char *)(buf+i));
+        screen_address = (color_t *)process_address + i;
+        *screen_address = *((color_t *)(buf+i));
     }
 
 }

@@ -11,6 +11,8 @@ int main(int argc, char **argv)
         k = getkey();
         if(k != '\0')
             printf("%c\n", k);
+        
+        draw_pixel(i%100, i%100, 0xF800);
         i++;
     }
     exit_graphics();    
