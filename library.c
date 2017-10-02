@@ -16,6 +16,7 @@ void key_presses(int);
 char getkey();
 void sleep_ms();
 void * new_offscreen_buffer();
+int abs(int);
 
 #define CLEAR_CODE "\033[2J" 
 //1111 1000 0000 0000
@@ -157,3 +158,26 @@ void blit(void * buf){
     }
 
 }
+
+//literally copied this and changed the variables: https://rosettacode.org/wiki/Bitmap/Bresenham%27s_line_algorithm#C
+void draw_line(int x0, int y0, int x1, int y1, color_t color) {
+    
+     int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
+     int dy = abs(y1-y0), sy = y0<y1 ? 1 : -1; 
+     int err = (dx>dy ? dx : -dy)/2, e2;
+    
+     for(;;){
+       draw_pixel(x0,y0, color);
+       if (x0==x1 && y0==y1) break;
+       e2 = err;
+       if (e2 >-dx) { err -= dy; x0 += sx; }
+       if (e2 < dy) { err += dx; y0 += sy; }
+     }
+   }
+
+   int abs(int integer){
+       if(integer < 0){
+           integer = -integer;
+       }
+       return integer;
+   }
