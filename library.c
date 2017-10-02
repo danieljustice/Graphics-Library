@@ -5,12 +5,16 @@
 #include <unistd.h>         /* for write() http://man7.org/linux/man-pages/man2/write.2.html*/
 #include <termios.h>        /* for keyboard control ref: https://linux.die.net/man/3/termios*/
 #include <termio.h>         //need this too for some reason ¯\_(ツ)_/¯
-
+#include <sys/select.h>
+#include <sys/types.h>      
+#include <time.h>           /* for nanosleep()*/
 //function prototypes
 void init_graphics();
 void clear_screen();
 void exit_graphics();
-void key_presses();
+void key_presses(int);
+char getkey();
+void sleep_ms();
 
 //for mmap in init
 int file;
@@ -43,7 +47,35 @@ void init_graphics(){
 
 }
 
+//https://en.wikipedia.org/wiki/Select_(Unix)
+//https://stackoverflow.com/questions/448944/c-non-blocking-keyboard-input
+//http://man7.org/linux/man-pages/man2/select.2.html
 
+char getkey(){
+    char c = '\0';                      //set to empty char ref: https://stackoverflow.com/questions/18410234/how-does-one-represent-the-empty-char
+    fd_set fds;
+    FD_ZERO(&fds);
+    FD_SET(0, &fds);
+    struct timeval tv ={0L, 0L};
+    int count = select(1, &fds, NULL, NULL, &tv);
+
+    if(count > 0){
+            /* If a character was pressed then we get it and exit */
+            read(0, &c, sizeof(char)); 
+    }
+
+    return c;   
+}
+
+//ref: https://stackoverflow.com/questions/7684359/how-to-use-nanosleep-in-c-what-are-tim-tv-sec-and-tim-tv-nsec
+void sleep_ms(int milli_secs){
+    struct timespec tim;
+    tim.tv_sec = 0;                         //dont need whole seconds
+    tim.tv_nsec = milli_secs * 1000000;     //nanosecs to milliseconds
+
+    nanosleep(&tim, NULL);
+
+}
 
 void exit_graphics(){
     //Turn Keypresses ON
