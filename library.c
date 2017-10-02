@@ -19,6 +19,9 @@ void sleep_ms();
 //for mmap in init
 int file;
 int *process_address;
+
+int screen_height;
+int screen_width;
 int len;
 
 //for ioctl
@@ -28,6 +31,17 @@ int yres;
 int line_length;
 
 #define CLEAR_CODE "\033[2J" 
+//1111 1000 0000 0000
+//F    8    0    0
+#define REDMASK (color) (color & 0xF800)
+//0000 0111 1110 0000
+//0    7    E    0
+#define GREENMASK(color) (color & 0x07E0)
+//0000 0000 0001 1111
+//0    0    1    F
+#define BLUEMASK(color) (color & 0x001F)
+typedef unsigned short color_t;
+
 
 
 void init_graphics(){
@@ -37,6 +51,9 @@ void init_graphics(){
     ioctl(file, FBIOGET_VSCREENINFO, &variable_info);
     //populate fixed_info struc
     ioctl(file, FBIOGET_FSCREENINFO, &fixed_info);
+
+    screen_height = variable_info.yres_virtual;
+    screen_width = (fixed_info.line_length/(sizeof *process_address)); 
     //size of the mmapped file
     len = variable_info.yres_virtual * fixed_info.line_length;
     process_address = mmap(0, len, PROT_READ | PROT_WRITE, MAP_PRIVATE, file, 0);
@@ -112,6 +129,19 @@ void key_presses(int bool){
     
     //sets terminal settings
     ioctl(1, TCSETS, &terminal);
+
+
+    void draw_pixel(int x, int y, color_t color){
+        if(x < 0 || y < 0){
+            //woops
+        }
+        x = x%screen_width;
+        y = y%screen_height;
+
+        *(process_address + (y * screen_width + x)) = color;
+
+    }
+
 
 
 }
