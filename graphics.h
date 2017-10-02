@@ -1,4 +1,4 @@
-#include "library.c"
+//#include "library.c"
 
 #define CLEAR_CODE "\033[2J" 
 //1111 1000 0000 0000

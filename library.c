@@ -150,17 +150,18 @@ void draw_pixel(void *img, int x, int y, color_t color){
     x = x%screen_width;
     y = y%screen_height;
 
-    *((color_t *)img + (y * screen_width + x)) = color;
+    *((color_t *)process_address + (y * screen_width + x)) = color;
 
 }
 
 //Need to cast everything
 void blit(void * buf){
-    color_t *screen_address;
+    color_t *screen_address = (color_t *) buf;
     int i = 0;
-    for(i = 0; i<len; i++){
-        screen_address = (color_t *)process_address + i;
-        *screen_address = *((color_t *)(buf+i));
+    for(i = 0; i<len/(sizeof screen_address); i++){
+        //screen_address = (color_t *)process_address + i;
+        //screen_address[buf+i] = *((color_t *)(buf+i));
+        screen_address[i] = process_address[i];
     }
 
 }
