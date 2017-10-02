@@ -15,13 +15,18 @@ void exit_graphics();
 void key_presses(int);
 char getkey();
 void sleep_ms();
+void * new_offscreen_buffer();
 
 //for mmap in init
 int file;
+<<<<<<< HEAD
 int *process_address;
 
 int screen_height;
 int screen_width;
+=======
+char *process_address;
+>>>>>>> master
 int len;
 
 //for ioctl
@@ -56,7 +61,7 @@ void init_graphics(){
     screen_width = (fixed_info.line_length/(sizeof *process_address)); 
     //size of the mmapped file
     len = variable_info.yres_virtual * fixed_info.line_length;
-    process_address = mmap(0, len, PROT_READ | PROT_WRITE, MAP_PRIVATE, file, 0);
+    process_address = mmap(0, len, PROT_READ | PROT_WRITE, MAP_SHARED, file, 0);
     //clears the screen
     clear_screen();
     //turns off keypresses
@@ -129,7 +134,12 @@ void key_presses(int bool){
     
     //sets terminal settings
     ioctl(1, TCSETS, &terminal);
+}
 
+void * new_offscreen_buffer(){
+    void *buf = mmap(0, len, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    return buf;
+}
 
     void draw_pixel(int x, int y, color_t color){
         if(x < 0 || y < 0){
@@ -142,6 +152,13 @@ void key_presses(int bool){
 
     }
 
-
+//Need to cast everything
+void blit(void * buf){
+    char *screen_address;
+    int i = 0;
+    for(i = 0; i<len; i++){
+        screen_address = (char *)process_address + i;
+        *screen_address = *((char *)(buf+i));
+    }
 
 }
